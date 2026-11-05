@@ -2,14 +2,14 @@ pkgs:
 
 let
   pname = "openidea";
-  version = "0.1.35";
+  version = "0.1.37";
 in
 pkgs.stdenv.mkDerivation {
   inherit pname version;
 
   src = pkgs.fetchurl {
     url = "https://github.com/l0ng-ai/openidea/releases/download/v${version}/OpenIDEA_${version}_amd64.deb";
-    hash = "sha256-IZjZj47WkyZ2I/rnlKsKSL4a8OtG5PbXxtSzxvu9OLk=";
+    hash = "sha256-V33JSy8uquwaTIfMjw/PiafWaa4yKKKTgfnHVAAV8lU=";
   };
 
   nativeBuildInputs = with pkgs; [
