@@ -1,6 +1,8 @@
 name: build
 
 on:
+  push:
+    branches: [main]
   schedule:
     - cron: "0 6 * * *" # daily at 06:00 UTC
   workflow_dispatch:
@@ -68,5 +70,13 @@ jobs:
         run: |
           nix build .#openidea
           cachix push "$CACHIX_CACHE" $(nix path-info -r .#openidea)
+        env:
+          CACHIX_CACHE: ${{ vars.CACHIX_CACHE }}
+
+      # WindInput is pinned by its own flake, so just (re)build and push it.
+      - name: Build and push WindInput to Cachix
+        run: |
+          nix build .#windinput
+          cachix push "$CACHIX_CACHE" $(nix path-info -r .#windinput)
         env:
           CACHIX_CACHE: ${{ vars.CACHIX_CACHE }}

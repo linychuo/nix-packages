@@ -4,6 +4,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     flake-utils.url = "github:numtide/flake-utils";
+    windinput.url = "github:huanfeng/WindInput";
+    windinput.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -11,6 +13,7 @@
       self,
       nixpkgs,
       flake-utils,
+      windinput,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -24,12 +27,17 @@
         );
       in
       {
-        packages = builtins.listToAttrs (
-          map (name: {
-            name = name;
-            value = import (./packages + "/${name}.nix") pkgs;
-          }) packageNames
-        );
+        packages =
+          builtins.listToAttrs (
+            map (name: {
+              name = name;
+              value = import (./packages + "/${name}.nix") pkgs;
+            }) packageNames
+          )
+          // {
+            # WindInput ships its own flake with a NixOS/fcitx5 package.
+            windinput = windinput.packages.${system}.windinput;
+          };
       }
     );
 }

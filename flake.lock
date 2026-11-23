@@ -37,7 +37,8 @@
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "windinput": "windinput"
       }
     },
     "systems": {
@@ -52,6 +53,60 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "wind-setting": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794669694,
+        "narHash": "sha256-MUnarmxLMiL8nwF+Gh6Qp2jwnWv/vl7s/K9Q0FPJrqI=",
+        "owner": "huanfeng",
+        "repo": "wind-setting",
+        "rev": "9bca68ce55839b570c9a3c3b521e20c581f7a262",
+        "type": "github"
+      },
+      "original": {
+        "owner": "huanfeng",
+        "repo": "wind-setting",
+        "type": "github"
+      }
+    },
+    "wind-ui-rust": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794671420,
+        "narHash": "sha256-rdl9mdkAL7ZfXQn47rXDWWEHRIAqdTdei4R6HqkuGGI=",
+        "owner": "huanfeng",
+        "repo": "wind-ui-rust",
+        "rev": "b6a4933b6024ea77e74644ba406dfb2bf87684f2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "huanfeng",
+        "repo": "wind-ui-rust",
+        "type": "github"
+      }
+    },
+    "windinput": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "wind-setting": "wind-setting",
+        "wind-ui-rust": "wind-ui-rust"
+      },
+      "locked": {
+        "lastModified": 1795428050,
+        "narHash": "sha256-FFiW9RRL2uuPOAXiWyBvqx/0+Wi1d/HQBim3JeuZhVc=",
+        "owner": "huanfeng",
+        "repo": "WindInput",
+        "rev": "b591f062b6864a8b72ccdbd0ad6c340073214c47",
+        "type": "github"
+      },
+      "original": {
+        "owner": "huanfeng",
+        "repo": "WindInput",
         "type": "github"
       }
     }
