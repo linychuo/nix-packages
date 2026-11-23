@@ -28,10 +28,14 @@ jobs:
       # Compare the pinned version with the latest upstream release.
       - name: Check upstream release
         id: check
+        continue-on-error: true
         run: |
           set -euo pipefail
 
-          latest="$(curl -fsSL https://api.github.com/repos/l0ng-ai/openidea/releases/latest \
+          latest="$(curl -fsSL \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/l0ng-ai/openidea/releases/latest \
             | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p')"
           version="${latest#v}"
           current="$(sed -n 's/^  version = "\(.*\)";/\1/p' packages/openidea.nix | head -1)"
