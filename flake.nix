@@ -2,9 +2,11 @@
   description = "Prebuilt third-party packages, served via Cachix";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     flake-utils.url = "github:numtide/flake-utils";
     windinput.url = "github:huanfeng/WindInput";
+    # Match the main flake's nixpkgs so the fcitx5 ABI lines up.
+    windinput.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
