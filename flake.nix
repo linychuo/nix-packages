@@ -37,7 +37,36 @@
           )
           // {
             # WindInput ships its own flake with a NixOS/fcitx5 package.
-            windinput = windinput.packages.${system}.windinput;
+            #
+            # Patched here: fontconfig encodes a variable-font TTC face as
+            # `(instance << 16) | face_index` (Noto Sans CJK SC Regular =
+            # 262146), while ttf_parser::Face::parse wants the plain face
+            # index. Unmasked, every CJK face fails to load and the candidate
+            # window draws blank. The service (where wind-ui lives) is rebuilt
+            # with the mask; the addon is then rebuilt against that new service
+            # because it bakes the service's store path at configure time.
+            windinput =
+              let
+                upstream = windinput.packages.${system};
+                src = windinput.outPath;
+                version = nixpkgs.lib.removeSuffix "\n" (builtins.readFile (src + "/docs/VERSION"));
+                patchedService = upstream.windinput-service.overrideAttrs (old: {
+                  postPatch = (old.postPatch or "") + ''
+                    substituteInPlace crates/wind-ui/src/text/linux/fontconfig.rs --replace-fail 'index: index.max(0) as u32,' 'index: (index.max(0) as u32) & 0xffff,'
+                  '';
+                });
+                patchedAddon = pkgs.callPackage (src + "/wind_linux/nix/addon.nix") {
+                  inherit version;
+                  service = patchedService;
+                  setting = upstream.wind-setting;
+                };
+              in
+              pkgs.callPackage (src + "/wind_linux/nix/package.nix") {
+                inherit version;
+                windinput-service = patchedService;
+                windinput-fcitx5 = patchedAddon;
+                wind-setting = upstream.wind-setting;
+              };
           };
       }
     );
