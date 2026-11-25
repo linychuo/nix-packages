@@ -38,13 +38,22 @@
           // {
             # WindInput ships its own flake with a NixOS/fcitx5 package.
             #
-            # Patched here: fontconfig encodes a variable-font TTC face as
-            # `(instance << 16) | face_index` (Noto Sans CJK SC Regular =
-            # 262146), while ttf_parser::Face::parse wants the plain face
-            # index. Unmasked, every CJK face fails to load and the candidate
-            # window draws blank. The service (where wind-ui lives) is rebuilt
-            # with the mask; the addon is then rebuilt against that new service
-            # because it bakes the service's store path at configure time.
+            # Two patches on top of it:
+            #
+            # 1. fontconfig encodes a variable-font TTC face as
+            #    `(instance << 16) | face_index` (Noto Sans CJK SC Regular =
+            #    262146), while ttf_parser::Face::parse wants the plain face
+            #    index. Unmasked, every CJK face fails to load and the candidate
+            #    window draws blank. The service (where wind-ui lives) is rebuilt
+            #    with the mask.
+            # 2. The addon conf does not declare a dependency on the `wayland`
+            #    module, so fcitx5 may load windinput first; WaylandCandidatePanel
+            #    then looks up `wayland` once, finds nothing and permanently
+            #    disables the Wayland candidate window. Declare the dependency so
+            #    the module is there before the addon is constructed.
+            #
+            # The addon is rebuilt against the patched service because it bakes
+            # the service's store path at configure time.
             windinput =
               let
                 upstream = windinput.packages.${system};
@@ -55,11 +64,19 @@
                     substituteInPlace crates/wind-ui/src/text/linux/fontconfig.rs --replace-fail 'index: index.max(0) as u32,' 'index: (index.max(0) as u32) & 0xffff,'
                   '';
                 });
-                patchedAddon = pkgs.callPackage (src + "/wind_linux/nix/addon.nix") {
-                  inherit version;
-                  service = patchedService;
-                  setting = upstream.wind-setting;
-                };
+                patchedAddon =
+                  let
+                    base = pkgs.callPackage (src + "/wind_linux/nix/addon.nix") {
+                      inherit version;
+                      service = patchedService;
+                      setting = upstream.wind-setting;
+                    };
+                  in
+                  base.overrideAttrs (old: {
+                    postInstall = (old.postInstall or "") + ''
+                      printf '\n[Addon/Dependencies]\n0=wayland:${pkgs.fcitx5.version}\n' >> $out/share/fcitx5/addon/windinput.conf
+                    '';
+                  });
               in
               pkgs.callPackage (src + "/wind_linux/nix/package.nix") {
                 inherit version;
