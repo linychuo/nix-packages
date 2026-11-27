@@ -13,6 +13,9 @@ pkgs.stdenvNoCC.mkDerivation {
   src = pkgs.fetchzip {
     url = "https://github.com/tywr/Nordwand-Mono/releases/download/${version}/NerdwandMono-OTF.zip";
     hash = "sha256-UmeCx0Kk/JsViLG/42MH6dQItsUAgEj9yml/kswLZcw=";
+    # The zip is a flat list of font files (plus a licenses/ dir), not a
+    # single top-level directory.
+    stripRoot = false;
   };
 
   installPhase = ''
